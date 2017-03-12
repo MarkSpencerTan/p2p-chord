@@ -90,7 +90,6 @@ public class ChordUser
                              try {
                                  String filename = tokens[1];
                                  Path path = Paths.get("./" + guid + "/" + filename);
-                                 System.out.println(path.toString());
                                  long guidObject = md5(filename);
                                  // get a chord that is responsible for the file
                                  ChordMessageInterface peer = chord.locateSuccessor(guidObject);
