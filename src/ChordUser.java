@@ -76,7 +76,7 @@ public class ChordUser
                                  String fileName = tokens[1];
                                  long guidObject = md5(fileName);
                                  // If you are using windows you have to use
-                                 // 				path = ".\\"+  guid +"\\"+fileName; // path to file
+                                 // path = ".\\"+  guid +"\\"+fileName; // path to file
                                  path = "./"+  guid +"/"+fileName; // path to file
                                  FileStream file = new FileStream(path);
                                  ChordMessageInterface peer = chord.locateSuccessor(guidObject);
@@ -85,10 +85,12 @@ public class ChordUser
                                  e.printStackTrace();
                              }
                          }
+                         // Downloads a file from a chord to the local filesystem
                          if  (tokens[0].equals("read") && tokens.length == 2) {
                              try {
                                  String filename = tokens[1];
                                  Path path = Paths.get("./" + guid + "/" + filename);
+                                 System.out.println(path.toString());
                                  long guidObject = md5(filename);
                                  // get a chord that is responsible for the file
                                  ChordMessageInterface peer = chord.locateSuccessor(guidObject);
@@ -100,11 +102,17 @@ public class ChordUser
                                  e.printStackTrace();
                              }
                         }
+                        // Deletes a file stored from a Chord
                         if  (tokens[0].equals("delete") && tokens.length == 2) {
-                            // Obtain the chord that is responsable for the file:
-                            //  peer = chord.locateSuccessor(guidObject);
-                            // where guidObject = md5(fileName)
-                            // Call peer.delete(guidObject)
+                            try {
+                                String filename = tokens[1];
+                                long guidObject = md5(filename);
+                                // get a chord that is responsible for the file
+                                ChordMessageInterface peer = chord.locateSuccessor(guidObject);
+                                peer.delete(guidObject);
+                            }catch(IOException e){
+                                e.printStackTrace();
+                            }
                         }
                      }
                  }
