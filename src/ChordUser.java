@@ -86,15 +86,19 @@ public class ChordUser
                              }
                          }
                          if  (tokens[0].equals("read") && tokens.length == 2) {
-                             //TODO: Create a local
-                             //    "./"+  guid +"/"+fileName
-                             // where filename = tokens[1];
-                             // Obtain the chord that is responsable for the file:
-                              //  peer = chord.locateSuccessor(guidObject);
-                             // where guidObject = md5(fileName);
-                             // Now you can obtain the conted of the file in the chord using
-                             // Call stream = peer.get(guidObject)
-                             // Store the content of stream in the file that you create
+                             try {
+                                 String filename = tokens[1];
+                                 Path path = Paths.get("./" + guid + "/" + filename);
+                                 long guidObject = md5(filename);
+                                 // get a chord that is responsible for the file
+                                 ChordMessageInterface peer = chord.locateSuccessor(guidObject);
+                                 // open a stream to copy content to stream
+                                 InputStream stream = peer.get(guidObject);
+                                 // Outputs stream content to a file
+                                 Files.copy(stream, path);
+                             }catch(IOException e){
+                                 e.printStackTrace();
+                             }
                         }
                         if  (tokens[0].equals("delete") && tokens.length == 2) {
                             // Obtain the chord that is responsable for the file:
