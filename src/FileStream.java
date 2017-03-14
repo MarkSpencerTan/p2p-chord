@@ -6,7 +6,7 @@ public class FileStream extends InputStream implements Serializable {
 		private int currentPosition;
 		private byte[] byteBuffer;
 		private int size;
-		public  FileStream(String pathName) throws FileNotFoundException, IOException {
+		public  FileStream(String pathName) throws FileNotFoundException, IOException, Exception {
 			File file = new File(pathName);
 			size = (int)file.length();
 			byteBuffer = new byte[size];
