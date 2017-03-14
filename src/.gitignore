@@ -1,3 +1,5 @@
 *.class
 # ignore all subdirectories: 
 **/
+*.swp
+*.swo
