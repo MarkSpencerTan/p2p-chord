@@ -135,16 +135,16 @@ public class ChordUser
              }
          }, 1000, 1000);
     }
-    public static void copyFolder(Path src, Path dest){
+    public static void copyFolder(Path src, Path dest) {
         File src_dir = src.toFile();
         String files[] = src_dir.list();
-        for (String file : files)
-        {
-            try{
+        for (String file : files) {
+            try {
                 Path srcPath = Paths.get(src + "/" + file);
-                Files.copy(srcPath, dest);
-            }catch(IOException e){
-                e.printStackTrace();
+                Path destPath = Paths.get(dest + "/" + file);
+                Files.copy(srcPath, destPath);
+            } catch (IOException e) {
+                System.out.println("Invalid Folder paths");
             }
         }
     }
