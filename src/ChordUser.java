@@ -122,7 +122,7 @@ public class ChordUser
                             //get nearest chord neighbor that will inherit the file
                             ChordMessageInterface neighbor = chord.closestPrecedingNode(guid);
                             //Copy the files to the nearest chord's repo
-                            Path neighbor_path = Paths.get("./" + neighbor.getId() + "repository");
+                            Path neighbor_path = Paths.get("./" + neighbor.getId() + "/repository");
                             copyFolder(path, neighbor_path);
                             //update successors/routing table??
                         }
