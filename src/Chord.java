@@ -1,4 +1,5 @@
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.*;
 import java.rmi.registry.*;
@@ -17,7 +18,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     ChordMessageInterface predecessor;
     ChordMessageInterface[] finger;
     int nextFinger;
-    long guid;   		// GUID (i)
+    long guid; // GUID (i)
 
 
     public ChordMessageInterface rmiChord(String ip, int port)
@@ -176,16 +177,40 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
       }
     }
 
+    // This object is notified that j, the previous predecessor
     public void notify(ChordMessageInterface j) throws RemoteException {
-         if (predecessor == null || (predecessor != null
-                    && isKeyInOpenInterval(j.getId(), predecessor.getId(), guid)))
-	 // TODO
-	 //transfer keys in the range [j,i) to j;
-             predecessor = j;
+        String mRepoPath = "./"+guid+"/repository";
+
+        if (predecessor == null || (predecessor != null
+                    && isKeyInOpenInterval(j.getId(), predecessor.getId(), guid))) {
+
+            //transfer keys in the range [j,i) to j;
+            File src_dir = Paths.get(mRepoPath).toFile();
+            // Array of filenames within the i's repo
+            String files[] = src_dir.list();
+            for (String file : files) {
+                long file_key = Long.parseLong(file);
+                // see if file k is within range of [j,i)
+                if(isKeyInSemiCloseInterval(file_key, j.getId(), this.guid)){
+                    try {
+                        String srcPath = mRepoPath + "/" + file;
+                        //insert file to j if it is
+                        j.put(file_key, new FileStream(srcPath));
+                        //delete key in i
+                        this.delete(file_key);
+                    } catch (IOException e) {
+                        System.out.println("Invalid Folder paths");
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+            // set j as predecessor of i
+            predecessor = j;
+        }
     }
 
     public void fixFingers() {
-
         long id= guid;
         try {
             long nextId;
