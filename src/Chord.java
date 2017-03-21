@@ -1,3 +1,5 @@
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.rmi.server.*;
@@ -71,6 +73,13 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     
     public void delete(long guidObject) throws RemoteException {
           //TODO delete the file ./port/repository/guid
+        try {
+            String fileName = "./"+guid+"/repository/" + guidObject;
+            Files.delete(Paths.get(fileName));
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
     }
     
     public long getId() throws RemoteException {
