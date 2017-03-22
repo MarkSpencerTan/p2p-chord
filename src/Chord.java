@@ -117,13 +117,16 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 
     public ChordMessageInterface closestPrecedingNode(long key) throws RemoteException {
 	// todo
-        temp = successor;
-        findingNextSuccessor();
-
-        while(temp != successor.getId()) {
-          findingNextSuccessor();
-        } // check logic later
-        return predecessor;
+        //M is number of nodes?? iterate thorugh it number of nodes -1 times
+        //so u dont hit urself
+        for(int x = 0; x <= M-1;x++) {
+          if(finger[x] != null) {
+            if(isKeyInSemiCloseInterval(finger[x].getId(),i,key)) {
+              return finger[x];
+            }
+          }
+        }
+        return successor;
 
     }
 
