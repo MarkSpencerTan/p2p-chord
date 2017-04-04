@@ -9,8 +9,9 @@ public interface ChordMessageInterface extends Remote {
     public void notify(ChordMessageInterface j) throws RemoteException;
     public boolean isAlive() throws RemoteException;
     public long getId() throws RemoteException;
-    
-    
+    public void setPredecessor(ChordMessageInterface predecessor) throws RemoteException;
+    public void setSuccessor(ChordMessageInterface successor) throws RemoteException;
+
     public void put(long guidObject, InputStream file) throws IOException, RemoteException;
     public InputStream get(long guidObject) throws IOException, RemoteException;
     public void delete(long guidObject) throws IOException, RemoteException;

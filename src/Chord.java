@@ -18,6 +18,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     ChordMessageInterface[] finger;
     int nextFinger;
     long guid; // GUID (i)
+    Timer timer;
 
 
     public ChordMessageInterface rmiChord(String ip, int port) {
@@ -91,6 +92,14 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 	    return true;
     }
 
+    public void setSuccessor(ChordMessageInterface successor) throws RemoteException{
+        this.successor = successor;
+    }
+
+    public void setPredecessor(ChordMessageInterface predecessor) throws RemoteException{
+        this.predecessor = predecessor;
+    }
+
     public ChordMessageInterface getPredecessor() throws RemoteException {
 	    return predecessor;
     }
@@ -137,6 +146,24 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         catch(RemoteException | NotBoundException e){
             successor = this;
         }
+    }
+
+    public void leaveRing() throws RemoteException, NotBoundException{
+        timer.cancel();
+
+        predecessor.setSuccessor(successor);
+        successor.setPredecessor(predecessor);
+
+        Path path = Paths.get("./" + guid + "/repository");
+        //get nearest chord neighbor that will inherit the file
+
+        //Copy the files to the nearest chord's repo
+        Path neighbor_path = Paths.get("./" + successor.getId() + "/repository");
+
+        copyFolder(path, neighbor_path);
+
+        successor = null;
+        predecessor = null;
     }
 
     public void findingNextSuccessor() {
@@ -224,7 +251,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                 nextFinger = (nextFinger + 1) % M;
         }
         catch(RemoteException | NullPointerException e){
-            finger[nextFinger] = null;
+            //finger[nextFinger] = null;
             e.printStackTrace();
         }
     }
@@ -251,7 +278,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 
         predecessor = null;
         successor = this;
-        Timer timer = new Timer();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
 	    @Override
 	    public void run() {
@@ -289,6 +316,20 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
         catch(RemoteException e){
 	       System.out.println("Cannot retrive id");
+        }
+    }
+
+    public static void copyFolder(Path src, Path dest) {
+        File src_dir = src.toFile();
+        String files[] = src_dir.list();
+        for (String file : files) {
+            try {
+                Path srcPath = Paths.get(src + "/" + file);
+                Path destPath = Paths.get(dest + "/" + file);
+                Files.copy(srcPath, destPath);
+            } catch (IOException e) {
+                System.out.println("Invalid Folder paths");
+            }
         }
     }
 }

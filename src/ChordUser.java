@@ -117,14 +117,12 @@ public class ChordUser
 
                         // Leaves the ring and passes all files to nearest chord
                         if (tokens[0].equals("leave") && tokens.length == 1){
-                            // Get the current path to repo
-                            Path path = Paths.get("./" + guid + "/repository");
-                            //get nearest chord neighbor that will inherit the file
-                            ChordMessageInterface neighbor = chord.closestPrecedingNode(guid);
-                            //Copy the files to the nearest chord's repo
-                            Path neighbor_path = Paths.get("./" + neighbor.getId() + "/repository");
-                            copyFolder(path, neighbor_path);
-                            //update successors/routing table??
+                            try {
+                                chord.leaveRing();
+                            } catch (NotBoundException e) {
+                                e.printStackTrace();
+                            }
+                            System.exit(0);
                         }
                      }
                  }
@@ -135,19 +133,7 @@ public class ChordUser
              }
          }, 1000, 1000);
     }
-    public static void copyFolder(Path src, Path dest) {
-        File src_dir = src.toFile();
-        String files[] = src_dir.list();
-        for (String file : files) {
-            try {
-                Path srcPath = Paths.get(src + "/" + file);
-                Path destPath = Paths.get(dest + "/" + file);
-                Files.copy(srcPath, destPath);
-            } catch (IOException e) {
-                System.out.println("Invalid Folder paths");
-            }
-        }
-    }
+
 
 
     public static void main(String args[])
