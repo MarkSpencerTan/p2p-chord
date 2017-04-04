@@ -60,23 +60,18 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
       }
     }
 
+    public InputStream get(long guidObject) throws RemoteException { //IB
+             //TODO get  the file ./port/repository/guid
+        FileStream file = null;
+        String filename = "./"+guid+"/repository/"+guidObject;
+            try {
+                file = new FileStream(filename);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
 
-		public InputStream get(long guidObject) throws RemoteException { //IB
-				 //TODO get  the file ./port/repository/guid
-			FileStream file = null;
-			String filename = "./"+guid+"/repository/"+guidObject;
-				try {
-					file = new FileStream(filename);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-
-
-
-
-
-				return file;
-		}
+            return file;
+    }
 
     public void delete(long guidObject) throws RemoteException {
           //TODO delete the file ./port/repository/guid
@@ -121,7 +116,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         //so u dont hit urself
         for(int x = 0; x <= M-1;x++) {
           if(finger[x] != null) {
-            if(isKeyInSemiCloseInterval(finger[x].getId(),i,key)) {
+            if(isKeyInSemiCloseInterval(key, this.getId(), finger[x].getId())) {
               return finger[x];
             }
           }
