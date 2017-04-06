@@ -5,6 +5,20 @@ import java.math.BigInteger;
 import java.security.*;
 import java.nio.file.*;
 
+/*****************************//**
+* \brief This is the User Interface for Chord P2P files
+* It allows users to start Nodes and connect to othere 
+* \author Mingtau Li, 011110539
+* \author Kevin Duong, 011715000
+* \author Mark Spencer Tan, 012192282
+**********************************/
+//**/
+
+
+/*****************************//**
+* \class ChordUser class "Chorduser.java" 
+* \brief It implements ChordUser Interface
+**********************************/ 
 public class ChordUser
 {
      int port;
@@ -28,7 +42,10 @@ public class ChordUser
         return 0;
     }
     
-    
+    /*****************************//**
+    * Starts Constuctor
+    * \param p node port
+    **********************************/  
      public ChordUser(int p) {
          port = p;
         
@@ -136,6 +153,10 @@ public class ChordUser
 
 
 
+    /*****************************//**
+    * main program
+    * \param args[] node port
+    **********************************/  
     public static void main(String args[])
     {
         if (args.length < 1 ) {

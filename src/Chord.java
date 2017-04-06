@@ -7,8 +7,18 @@ import java.rmi.server.*;
 import java.net.*;
 import java.util.*;
 import java.io.*;
+/*****************************//**
+* \brief This program uses a Chord P2P Algorithm to transfer store and retrieve files
+* It creates a ring of nodes that copies files from one node to another
+* \author Mingtau Li, 011110539
+* \author Kevin Duong, 011715000
+* \author Mark Spencer Tan, 012192282
+**********************************/
 
-
+/*****************************//**
+* \class Chord class "Chord.java" 
+* \brief It implements Chord P2P
+**********************************/ 
 public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordMessageInterface {
     public static final int M = 2;
 
@@ -20,7 +30,11 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     long guid; // GUID (i)
     Timer timer;
 
-
+    /*****************************//**
+    * Implements Chord Message Interface
+    * \param ip Ip address of Node in network
+    * \param port where node is located
+    **********************************/  
     public ChordMessageInterface rmiChord(String ip, int port) {
         ChordMessageInterface chord = null;
         try{
@@ -32,6 +46,12 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         return chord;
     }
 
+    /*****************************//**
+    * Checks if key is in semi close interval
+    * \param key 1st key to be compared
+    * \param key2 2nd key to be compared
+    * \param key3 3rd key to be compared
+    **********************************/  
     public Boolean isKeyInSemiCloseInterval(long key, long key1, long key2) {
        if (key1 < key2)
            return (key > key1 && key <= key2);
@@ -39,6 +59,12 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
           return (key > key1 || key <= key2);
     }
 
+    /*****************************//**
+    * Checks if key is in open interval
+    * \param key 1st key to be compared
+    * \param key2 2nd key to be compared
+    * \param key3 3rd key to be compared
+    **********************************/  
     public Boolean isKeyInOpenInterval(long key, long key1, long key2) {
       if (key1 < key2)
           return (key > key1 && key < key2);
@@ -46,10 +72,14 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
           return (key > key1 || key < key2);
     }
 
-
+    /*****************************//**
+    * puts file into directory
+    * \param guidObject file
+    * \param stream input stream of file
+    **********************************/  
     public void put(long guidObject, InputStream stream) throws RemoteException {
-	 //TODO Store the file at ./guid/repository/guid
-      try {
+          try {
+          //sets directory of repository and puts file in it
           String fileName = "./"+guid+"/repository/" + guidObject;
           FileOutputStream output = new FileOutputStream(fileName);
           while (stream.available() > 0)
@@ -61,8 +91,12 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
       }
     }
 
+
+    /*****************************//**
+    * retrieves file from directory
+    * \param guidObject file
+    **********************************/  
     public InputStream get(long guidObject) throws RemoteException { //IB
-             //TODO get  the file ./port/repository/guid
         FileStream file = null;
         String filename = "./"+guid+"/repository/"+guidObject;
             try {
@@ -74,8 +108,12 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
             return file;
     }
 
+
+    /*****************************//**
+    * deletes file from repository
+    * \param guidObject file
+    **********************************/  
     public void delete(long guidObject) throws RemoteException {
-          //TODO delete the file ./port/repository/guid
         try {
             String fileName = "./"+guid+"/repository/" + guidObject;
             Files.delete(Paths.get(fileName));
@@ -85,25 +123,48 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+
+    /*****************************//**
+    * retrieve guid
+    **********************************/  
     public long getId() throws RemoteException {
         return guid;
     }
+
+    /*****************************//**
+    * keeps connection alive
+    **********************************/  
     public boolean isAlive() throws RemoteException {
 	    return true;
     }
 
+    /*****************************//**
+    * sets successor of node
+    * /param successor successor of node
+    **********************************/  
     public void setSuccessor(ChordMessageInterface successor) throws RemoteException{
         this.successor = successor;
     }
 
+    /*****************************//**
+    * sets predecessor of node
+    * /param predecessor predecessor of node
+    **********************************/  
     public void setPredecessor(ChordMessageInterface predecessor) throws RemoteException{
         this.predecessor = predecessor;
     }
 
+    /*****************************//**
+    * retrieves successor of node
+    **********************************/  
     public ChordMessageInterface getPredecessor() throws RemoteException {
 	    return predecessor;
     }
 
+    /*****************************//**
+    * locates successor of node based on key
+    * /param key distinct file key
+    **********************************/  
     public ChordMessageInterface locateSuccessor(long key) throws RemoteException {
 	    if (key == guid)
             throw new IllegalArgumentException("Key must be distinct that  " + guid);
@@ -119,9 +180,12 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         return successor;
     }
 
+    /*****************************//**
+    * gets closest preceding node 
+    * /param key distinct file key
+    **********************************/  
     public ChordMessageInterface closestPrecedingNode(long key) throws RemoteException {
-	// todo
-        //M is number of nodes?? iterate thorugh it number of nodes -1 times
+        //M is number of nodes. iterate thorugh it number of nodes -1 times
         //so u dont hit urself
         for(int x = 0; x <= M-1;x++) {
           if(finger[x] != null) {
@@ -134,6 +198,11 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 
     }
 
+    /*****************************//**
+    * allows node to join ring
+    * /param ip IP address of node
+    * /param port node port
+    **********************************/  
     public void joinRing(String ip, int port)  throws RemoteException {
         try{
             System.out.println("Get Registry to joining ring");
@@ -148,6 +217,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * leaves ring
+    **********************************/  
     public void leaveRing() throws RemoteException, NotBoundException{
         timer.cancel();
 
@@ -166,6 +238,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         predecessor = null;
     }
 
+    /*****************************//**
+    * finds the next successor of node
+    **********************************/  
     public void findingNextSuccessor() {
         int i;
         successor = this;
@@ -181,6 +256,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * stabilizes connection
+    **********************************/  
     public void stabilize() {
       try {
           if (successor != null)
@@ -202,7 +280,10 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
       }
     }
 
-    // This object is notified that j, the previous predecessor
+    /*****************************//**
+    * notifies j, the previous predecessor
+    * /param j previous predecessor
+    **********************************/  
     public void notify(ChordMessageInterface j) throws RemoteException {
         String mRepoPath = "./"+guid+"/repository";
 
@@ -235,6 +316,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * fixes fingers
+    **********************************/  
     public void fixFingers() {
         long id= guid;
         try {
@@ -256,6 +340,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * checks predecessor
+    **********************************/  
     public void checkPredecessor() {
       try {
           if (predecessor != null && !predecessor.isAlive())
@@ -268,6 +355,11 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
       }
     }
 
+    /*****************************//**
+    * Chord Constructor
+    * /param port port of node
+    * /param guid guid of node
+    **********************************/  
     public Chord(int port, long guid) throws RemoteException {
         int j;
 	    finger = new ChordMessageInterface[M];
@@ -298,6 +390,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * prints relevant info
+    **********************************/  
     void Print() {
         int i;
         try {
@@ -319,6 +414,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * copies contents of folder
+    **********************************/  
     public static void copyFolder(Path src, Path dest) {
         File src_dir = src.toFile();
         String files[] = src_dir.list();
